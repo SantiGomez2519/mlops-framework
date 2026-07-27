@@ -2,8 +2,8 @@ import json
 import numpy as np
 from pathlib import Path
 
-SCALER_PATH = Path(__file__).resolve().parent.parent / "shared" / "data" / "features" / "scaler_params.json"
-FEATURE_LIST_PATH = Path(__file__).resolve().parent.parent / "shared" / "data" / "features" / "feature_list.json"
+SCALER_PATH = Path(__file__).resolve().parent.parent.parent / "shared" / "data" / "features" / "scaler_params.json"
+FEATURE_LIST_PATH = Path(__file__).resolve().parent.parent.parent / "shared" / "data" / "features" / "feature_list.json"
 
 CONDITION_MAP = {"Poor": 0, "Fair": 1, "Good": 2, "Excellent": 3}
 LOCATIONS = ["Downtown", "Mountain", "Rural", "Suburb", "Urban", "Waterfront"]
