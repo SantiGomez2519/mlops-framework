@@ -176,19 +176,6 @@ House **A** is a genuine test prediction (about $90K off — typical error at th
 
 ---
 
-## Stage Handoff (into Production)
-
-The backend in `2-production/` never retrains. After (re)running the pipeline, copy the frozen contract forward:
-
-```bash
-cp 1-experimentation/data/featured/*  2-production/shared/data/featured/
-cp 1-experimentation/models/*          2-production/shared/models/
-```
-
-The API loads `feature_list.json`, `scaler_params.json`, and `best_model.joblib` from `2-production/shared/`. If you skip this copy, the backend silently keeps serving the previous model.
-
----
-
 ## Summary — How the Two Rows Evolve
 
 | | Stage 1.1 / 1.2 (raw → preprocessed) | Stage 1.4 (featured) | Stage 1.5 (split) | Stage 1.6 (evaluated) |
