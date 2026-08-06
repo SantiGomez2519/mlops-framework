@@ -1,8 +1,8 @@
 # MLOps Framework — House Price Predictor
 
-End-to-end MLOps project that trains a Gradient Boosting model to predict house prices and serves predictions through a FastAPI backend with a Vue.js frontend. Experiment tracking via **MLflow** in Docker. Split into two independent stages: `1-experimentation` (research) and `2-production` (serving).
+End-to-end MLOps project that trains a Gradient Boosting model to predict house prices and serves predictions through a FastAPI backend with a Vue.js frontend. Experiment tracking via **MLflow** in Docker. Split into two independent stages: `1-experimentation` (research) and `2-production` (serving), where production reimplements the pipeline in code, retrains its own model, and serves it.
 
-For a stage-by-stage walkthrough of the notebook pipeline with example data, see [docs/etapas-notebooks.md](docs/etapas-notebooks.md).
+For a stage-by-stage walkthrough of the notebook pipeline with example data, see [docs/notebooks-stages.md](docs/notebooks-stages.md).
 
 ## Project Structure
 
@@ -19,12 +19,26 @@ mlops-framework/
 │   ├── models/                       # best_model.joblib + experiment_results.json
 │   ├── docker-compose.yml            # MLflow Tracking Server
 │   └── requirements.txt
-└── 2-production/                     # Stage 2: serving (self-contained)
-    ├── backend/                      # FastAPI prediction service
-    │   ├── main.py                   # API endpoints (health, info, predict)
-    │   ├── model.py                  # Model loading and inference
-    │   ├── preprocessing.py          # Feature engineering pipeline
-    │   └── requirements.txt
+└── 2-production/                     # Stage 2: serving (self-contained, no notebooks)
+    ├── backend/
+    │   ├── data/                     # production's own data (raw → preprocessed → featured)
+    │   ├── models/
+    │   │   └── house_price_model.joblib  # model + scaler + features + metrics (single bundle)
+    │   ├── pipeline/                 # ML / offline: reimplements the notebooks, retrains
+    │   │   ├── config.py             #   paths, CURRENT_YEAR, BEST_PARAMS, FEATURE_COLS
+    │   │   ├── enums.py              #   Location, Condition, DataStage
+    │   │   ├── 1_preprocessing.py    #   Preprocessing      (mirrors 1_2)
+    │   │   ├── 2_feature_engineering.py # FeatureEngineering (mirrors 1_4)
+    │   │   ├── 3_training.py         #   Training           (mirrors 1_5/1_6)
+    │   │   ├── model.py              #   Model (load bundle, predict, info)
+    │   │   ├── pipeline.py           #   Pipeline (orchestrator)
+    │   │   └── __main__.py           #   python -m backend.pipeline
+    │   └── api/                      # API / online: FastAPI (Django-REST style)
+    │       ├── main.py               #   create_app() + CORS + routers
+    │       ├── core/exceptions.py    #   ModelNotLoadedError
+    │       ├── models/schemas.py     #   HouseInput (enums), response models
+    │       ├── services/             #   PredictionService, ModelService
+    │       └── api/                  #   deps.py (DI), routes/ (health, model, predict)
     ├── frontend/                     # Vue.js web interface
     │   ├── index.html
     │   ├── package.json
@@ -32,14 +46,12 @@ mlops-framework/
     │   └── src/
     │       ├── main.js
     │       └── App.vue               # Prediction form + result display
-    └── shared/                       # Frozen contract deployed from stage 1
-        ├── data/featured/            #   scaler params + feature list
-        └── models/                   #   deployed model + metrics
+    └── requirements.txt
 ```
 
 ## Dataset
 
-`1-experimentation/data/raw/house_data.csv` — 85 houses with 7 columns:
+`1-experimentation/data/raw/house_data.csv` — 85 houses with 7 columns. Production owns its own copy as its first batch at `2-production/backend/data/raw/house_data.csv`.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -98,19 +110,21 @@ pip install -r requirements.txt
 
 ## Deploying to Production
 
-After training, copy the artifacts forward from stage 1 to stage 2:
+Nothing crosses from stage 1 to stage 2 — production never reads `1-experimentation/`. It reimplements the notebook recipe in code (`backend/pipeline/`) and retrains its own model on its own data:
 
 ```bash
-cp 1-experimentation/data/featured/*  2-production/shared/data/featured/
-cp 1-experimentation/models/*          2-production/shared/models/
+cd 2-production
+pip install -r requirements.txt
+python -m backend.pipeline
 ```
+
+This regenerates `backend/data/preprocessed/`, `backend/data/featured/`, and the bundle `backend/models/house_price_model.joblib`. After a recipe change in the notebooks, port the change into `backend/pipeline/` (constants in `config.py`) and re-run the pipeline.
 
 ## Running the Backend API
 
 ```bash
-cd 2-production/backend
-pip install -r requirements.txt
-python main.py
+cd 2-production
+python -m uvicorn backend.api.main:app --reload
 ```
 
 The API starts at `http://localhost:8000`. Interactive docs at `http://localhost:8000/docs`.
