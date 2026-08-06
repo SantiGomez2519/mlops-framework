@@ -1,48 +1,43 @@
 # MLOps Framework — House Price Predictor
 
-End-to-end MLOps project that trains a Gradient Boosting model to predict house prices and serves predictions through a FastAPI backend with a Vue.js frontend. Experiment tracking via **MLflow** in Docker.
+End-to-end MLOps project that trains a Gradient Boosting model to predict house prices and serves predictions through a FastAPI backend with a Vue.js frontend. Experiment tracking via **MLflow** in Docker. Split into two independent stages: `1-experimentation` (research) and `2-production` (serving).
 
 ## Project Structure
 
 ```
 mlops-framework/
-├── 1-notebooks/                        # Experimentation notebooks (run in order)
+├── 1-experimentation/                # Stage 1: research (self-contained)
 │   ├── 1_1_raw_data_profiling.ipynb
 │   ├── 1_2_raw_data_preprocessing.ipynb
 │   ├── 1_3_preprocessed_data_exploratory_data_analysis.ipynb
 │   ├── 1_4_preprocessed_data_feature_engineer.ipynb
 │   ├── 1_5_featured_data_model_training.ipynb   # Trains models + logs to MLflow
 │   ├── 1_6_featured_data_model_evaluation.ipynb
+│   ├── data/                         # raw/ → processed/ → features/
+│   ├── models/                       # best_model.joblib + experiment_results.json
+│   ├── docker-compose.yml            # MLflow Tracking Server
 │   └── requirements.txt
-├── 2-src/
-│   ├── 2-1-backend/                    # FastAPI prediction service
-│   │   ├── main.py                     # API endpoints (health, info, predict)
-│   │   ├── model.py                    # Model loading and inference
-│   │   ├── preprocessing.py            # Feature engineering pipeline
-│   │   └── requirements.txt
-│   └── 2-2-frontend/                   # Vue.js web interface
-│       ├── index.html
-│       ├── package.json
-│       ├── vite.config.js
-│       └── src/
-│           ├── main.js
-│           └── App.vue                 # Prediction form + result display
-├── shared/                             # Shared data and model artifacts
-│   ├── data/
-│   │   ├── raw/                        # Original CSV (85 rows, 7 columns)
-│   │   ├── processed/                  # Cleaned data after preprocessing
-│   │   └── features/                   # Engineered features, scaler params
-│   └── models/
-│       ├── best_model.joblib           # Serialized Gradient Boosting model
-│       └── experiment_results.json     # All model metrics and parameters
-├── docker-compose.yml                  # MLflow Tracking Server
-├── AGENTS.md                           # Project notes and gotchas
-└── README.md
+└── 2-production/                     # Stage 2: serving (self-contained)
+    ├── backend/                      # FastAPI prediction service
+    │   ├── main.py                   # API endpoints (health, info, predict)
+    │   ├── model.py                  # Model loading and inference
+    │   ├── preprocessing.py          # Feature engineering pipeline
+    │   └── requirements.txt
+    ├── frontend/                     # Vue.js web interface
+    │   ├── index.html
+    │   ├── package.json
+    │   ├── vite.config.js
+    │   └── src/
+    │       ├── main.js
+    │       └── App.vue               # Prediction form + result display
+    └── shared/                       # Frozen contract deployed from stage 1
+        ├── data/features/            #   scaler params + feature list
+        └── models/                   #   deployed model + metrics
 ```
 
 ## Dataset
 
-`shared/data/raw/house_data.csv` — 85 houses with 7 columns:
+`1-experimentation/data/raw/house_data.csv` — 85 houses with 7 columns:
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -67,11 +62,12 @@ Best model: **Gradient Boosting** (tuned via GridSearchCV, 5-fold CV R² = 0.998
 
 ## MLflow Tracking (Docker)
 
-Experiment tracking runs on a Dockerized MLflow server. It uses a SQLite backend store with a Docker volume for persistence.
+Experiment tracking runs on a Dockerized MLflow server (defined in `1-experimentation/docker-compose.yml`). It uses a SQLite backend store with a Docker volume for persistence.
 
 ### Start MLflow Server
 
 ```bash
+cd 1-experimentation
 docker compose up -d
 ```
 
@@ -91,17 +87,26 @@ Open [http://localhost:5555](http://localhost:5555) to view experiments, compare
 1. Install dependencies:
 
 ```bash
-cd 1-notebooks
+cd 1-experimentation
 pip install -r requirements.txt
 ```
 
-2. Run notebooks in order (1_1 through 1_6) in Jupyter or VS Code.
+2. Run notebooks in order (1_1 through 1_6) in Jupyter or VS Code. The working directory must be `1-experimentation/` (all paths are relative to it).
 3. Ensure the MLflow server is running (`docker compose up -d`) before running `1_5`.
+
+## Deploying to Production
+
+After training, copy the artifacts forward from stage 1 to stage 2:
+
+```bash
+cp 1-experimentation/data/features/*  2-production/shared/data/features/
+cp 1-experimentation/models/*          2-production/shared/models/
+```
 
 ## Running the Backend API
 
 ```bash
-cd 2-src/2-1-backend
+cd 2-production/backend
 pip install -r requirements.txt
 python main.py
 ```
@@ -145,7 +150,7 @@ Response:
 ## Running the Frontend
 
 ```bash
-cd 2-src/2-2-frontend
+cd 2-production/frontend
 npm install
 npm run dev
 ```

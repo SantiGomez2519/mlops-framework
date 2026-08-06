@@ -1,11 +1,15 @@
 import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import joblib
 
-MODEL_PATH = r"C:\Users\Usuario\Desktop\EAFIT\Exoesqueleto\mlops-framework\shared\models\best_model.joblib"
-RESULTS_PATH = r"C:\Users\Usuario\Desktop\EAFIT\Exoesqueleto\mlops-framework\shared\models\experiment_results.json"
-FEATURE_LIST_PATH = r"C:\Users\Usuario\Desktop\EAFIT\Exoesqueleto\mlops-framework\shared\data\features\feature_list.json"
+_STAGE_DIR = Path(__file__).resolve().parent.parent
+
+MODEL_PATH = _STAGE_DIR / "shared" / "models" / "best_model.joblib"
+RESULTS_PATH = _STAGE_DIR / "shared" / "models" / "experiment_results.json"
+FEATURE_LIST_PATH = _STAGE_DIR / "shared" / "data" / "features" / "feature_list.json"
 
 with open(FEATURE_LIST_PATH) as f:
     FEATURE_COLS = json.load(f)

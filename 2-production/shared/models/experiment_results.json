@@ -1,0 +1,128 @@
+{
+  "best_model": "Gradient Boosting",
+  "best_params": {
+    "learning_rate": 0.1,
+    "max_depth": 7,
+    "min_samples_split": 2,
+    "n_estimators": 200
+  },
+  "best_cv_r2": 0.9983771654634003,
+  "final_metrics": {
+    "Model": "Linear Regression",
+    "Train_R2": 0.9973841010420034,
+    "Test_R2": 0.9533067584584339,
+    "Train_RMSE": 16771.94590112417,
+    "Test_RMSE": 59350.413442132725,
+    "Train_MAE": 11258.403957736738,
+    "Test_MAE": 32088.438869891415,
+    "Train_MAPE": 0.016335082711119386,
+    "Test_MAPE": 0.05252903510105267,
+    "Train_Time(s)": 0.073
+  },
+  "all_model_results": [
+    {
+      "Model": "Linear Regression",
+      "Train_R2": 0.9973841010420034,
+      "Test_R2": 0.9533067584584339,
+      "Train_RMSE": 16771.94590112417,
+      "Test_RMSE": 59350.413442132725,
+      "Train_MAE": 11258.403957736738,
+      "Test_MAE": 32088.438869891415,
+      "Train_MAPE": 0.016335082711119386,
+      "Test_MAPE": 0.05252903510105267,
+      "Train_Time(s)": 0.073
+    },
+    {
+      "Model": "Ridge",
+      "Train_R2": 0.9879288881035405,
+      "Test_R2": 0.959313495590467,
+      "Train_RMSE": 36028.53543362881,
+      "Test_RMSE": 55401.551329806905,
+      "Train_MAE": 23135.614283832914,
+      "Test_MAE": 32140.209976761704,
+      "Train_MAPE": 0.030149973508394816,
+      "Test_MAPE": 0.05015144197243443,
+      "Train_Time(s)": 0.078
+    },
+    {
+      "Model": "Lasso",
+      "Train_R2": 0.9595391705210669,
+      "Test_R2": 0.8935645625964181,
+      "Train_RMSE": 65961.4754308409,
+      "Test_RMSE": 89606.57153790332,
+      "Train_MAE": 43745.5452496627,
+      "Test_MAE": 56515.50291269966,
+      "Train_MAPE": 0.06193600134579308,
+      "Test_MAPE": 0.08695556437216964,
+      "Train_Time(s)": 0.076
+    },
+    {
+      "Model": "ElasticNet",
+      "Train_R2": 0.9732386469703613,
+      "Test_R2": 0.9270358531996963,
+      "Train_RMSE": 53644.722622071735,
+      "Test_RMSE": 74191.0453931152,
+      "Train_MAE": 34651.701958251666,
+      "Test_MAE": 43038.33106824646,
+      "Train_MAPE": 0.046716749918000115,
+      "Test_MAPE": 0.06666737507091901,
+      "Train_Time(s)": 0.075
+    },
+    {
+      "Model": "Random Forest",
+      "Train_R2": 0.9996290591588598,
+      "Test_R2": 0.922565850789779,
+      "Train_RMSE": 6315.755321519333,
+      "Test_RMSE": 76429.84905040212,
+      "Train_MAE": 4287.01066111741,
+      "Test_MAE": 42741.39618332933,
+      "Train_MAPE": 0.007875166423097919,
+      "Test_MAPE": 0.06159743676710212,
+      "Train_Time(s)": 0.171
+    },
+    {
+      "Model": "Gradient Boosting",
+      "Train_R2": 0.9999305097690762,
+      "Test_R2": 0.9560470770226158,
+      "Train_RMSE": 2733.5992579728745,
+      "Test_RMSE": 57582.51340366734,
+      "Train_MAE": 1489.5714925600785,
+      "Test_MAE": 31835.7335719129,
+      "Train_MAPE": 0.0027501736886738275,
+      "Test_MAPE": 0.052602446122942716,
+      "Train_Time(s)": 0.114
+    },
+    {
+      "Model": "SVR",
+      "Train_R2": 0.8464950532167692,
+      "Test_R2": 0.8068965109464474,
+      "Train_RMSE": 128479.59477436017,
+      "Test_RMSE": 120695.6996947154,
+      "Train_MAE": 84665.7182999333,
+      "Test_MAE": 71900.06649153437,
+      "Train_MAPE": 0.11745835082129036,
+      "Test_MAPE": 0.11454779876517593,
+      "Train_Time(s)": 0.079
+    }
+  ],
+  "features_used": [
+    "sqft",
+    "bedrooms",
+    "bathrooms",
+    "year_built",
+    "house_age",
+    "loc_Downtown",
+    "loc_Mountain",
+    "loc_Rural",
+    "loc_Suburb",
+    "loc_Urban",
+    "loc_Waterfront",
+    "condition_encoded",
+    "total_rooms",
+    "bath_bed_ratio",
+    "is_luxury",
+    "is_new",
+    "sqft_per_bedroom"
+  ],
+  "target": "log_price (log-transformed)"
+}

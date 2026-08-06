@@ -1,0 +1,29 @@
+{
+  "features": [
+    "sqft",
+    "bedrooms",
+    "bathrooms",
+    "house_age",
+    "total_rooms",
+    "bath_bed_ratio",
+    "sqft_per_bedroom"
+  ],
+  "mean": {
+    "sqft": 2191.5,
+    "bedrooms": 2.857142857142857,
+    "bathrooms": 2.1904761904761907,
+    "house_age": 43.95238095238095,
+    "total_rooms": 5.0476190476190474,
+    "bath_bed_ratio": 0.758531746031746,
+    "sqft_per_bedroom": 772.6547619047619
+  },
+  "std": {
+    "sqft": 646.136383583587,
+    "bedrooms": 0.847164136888438,
+    "bathrooms": 0.8234103078947896,
+    "house_age": 19.385134683876153,
+    "total_rooms": 1.6359412748858937,
+    "bath_bed_ratio": 0.1326805460460115,
+    "sqft_per_bedroom": 81.06944238062991
+  }
+}

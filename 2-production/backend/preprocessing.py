@@ -1,8 +1,12 @@
 import json
+from pathlib import Path
+
 import numpy as np
 
-SCALER_PATH = r"C:\Users\Usuario\Desktop\EAFIT\Exoesqueleto\mlops-framework\shared\data\features\scaler_params.json"
-FEATURE_LIST_PATH = r"C:\Users\Usuario\Desktop\EAFIT\Exoesqueleto\mlops-framework\shared\data\features\feature_list.json"
+_STAGE_DIR = Path(__file__).resolve().parent.parent
+
+SCALER_PATH = _STAGE_DIR / "shared" / "data" / "features" / "scaler_params.json"
+FEATURE_LIST_PATH = _STAGE_DIR / "shared" / "data" / "features" / "feature_list.json"
 
 CONDITION_MAP = {"Poor": 0, "Fair": 1, "Good": 2, "Excellent": 3}
 LOCATIONS = ["Downtown", "Mountain", "Rural", "Suburb", "Urban", "Waterfront"]
