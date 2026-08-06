@@ -13,7 +13,7 @@ mlops-framework/
 │   ├── 1_4_preprocessed_data_feature_engineer.ipynb
 │   ├── 1_5_featured_data_model_training.ipynb   # Trains models + logs to MLflow
 │   ├── 1_6_featured_data_model_evaluation.ipynb
-│   ├── data/                         # raw/ → processed/ → features/
+│   ├── data/                         # raw/ → processed/ → featured/
 │   ├── models/                       # best_model.joblib + experiment_results.json
 │   ├── docker-compose.yml            # MLflow Tracking Server
 │   └── requirements.txt
@@ -31,7 +31,7 @@ mlops-framework/
     │       ├── main.js
     │       └── App.vue               # Prediction form + result display
     └── shared/                       # Frozen contract deployed from stage 1
-        ├── data/features/            #   scaler params + feature list
+        ├── data/featured/            #   scaler params + feature list
         └── models/                   #   deployed model + metrics
 ```
 
@@ -99,7 +99,7 @@ pip install -r requirements.txt
 After training, copy the artifacts forward from stage 1 to stage 2:
 
 ```bash
-cp 1-experimentation/data/features/*  2-production/shared/data/features/
+cp 1-experimentation/data/featured/*  2-production/shared/data/featured/
 cp 1-experimentation/models/*          2-production/shared/models/
 ```
 

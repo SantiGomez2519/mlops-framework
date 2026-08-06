@@ -9,7 +9,7 @@ _STAGE_DIR = Path(__file__).resolve().parent.parent
 
 MODEL_PATH = _STAGE_DIR / "shared" / "models" / "best_model.joblib"
 RESULTS_PATH = _STAGE_DIR / "shared" / "models" / "experiment_results.json"
-FEATURE_LIST_PATH = _STAGE_DIR / "shared" / "data" / "features" / "feature_list.json"
+FEATURE_LIST_PATH = _STAGE_DIR / "shared" / "data" / "featured" / "feature_list.json"
 
 with open(FEATURE_LIST_PATH) as f:
     FEATURE_COLS = json.load(f)

@@ -17,7 +17,7 @@
     "Test_MAE": 32088.438869891415,
     "Train_MAPE": 0.016335082711119386,
     "Test_MAPE": 0.05252903510105267,
-    "Train_Time(s)": 0.073
+    "Train_Time(s)": 0.064
   },
   "all_model_results": [
     {
@@ -30,7 +30,7 @@
       "Test_MAE": 32088.438869891415,
       "Train_MAPE": 0.016335082711119386,
       "Test_MAPE": 0.05252903510105267,
-      "Train_Time(s)": 0.073
+      "Train_Time(s)": 0.064
     },
     {
       "Model": "Ridge",
@@ -42,7 +42,7 @@
       "Test_MAE": 32140.209976761704,
       "Train_MAPE": 0.030149973508394816,
       "Test_MAPE": 0.05015144197243443,
-      "Train_Time(s)": 0.078
+      "Train_Time(s)": 0.07
     },
     {
       "Model": "Lasso",
@@ -54,7 +54,7 @@
       "Test_MAE": 56515.50291269966,
       "Train_MAPE": 0.06193600134579308,
       "Test_MAPE": 0.08695556437216964,
-      "Train_Time(s)": 0.076
+      "Train_Time(s)": 0.077
     },
     {
       "Model": "ElasticNet",
@@ -66,19 +66,19 @@
       "Test_MAE": 43038.33106824646,
       "Train_MAPE": 0.046716749918000115,
       "Test_MAPE": 0.06666737507091901,
-      "Train_Time(s)": 0.075
+      "Train_Time(s)": 0.191
     },
     {
       "Model": "Random Forest",
       "Train_R2": 0.9996290591588598,
-      "Test_R2": 0.922565850789779,
-      "Train_RMSE": 6315.755321519333,
-      "Test_RMSE": 76429.84905040212,
-      "Train_MAE": 4287.01066111741,
-      "Test_MAE": 42741.39618332933,
-      "Train_MAPE": 0.007875166423097919,
-      "Test_MAPE": 0.06159743676710212,
-      "Train_Time(s)": 0.171
+      "Test_R2": 0.9225658507897795,
+      "Train_RMSE": 6315.755321519493,
+      "Test_RMSE": 76429.84905040186,
+      "Train_MAE": 4287.01066111774,
+      "Test_MAE": 42741.39618333002,
+      "Train_MAPE": 0.007875166423098602,
+      "Test_MAPE": 0.061597436767103574,
+      "Train_Time(s)": 0.175
     },
     {
       "Model": "Gradient Boosting",
@@ -90,7 +90,7 @@
       "Test_MAE": 31835.7335719129,
       "Train_MAPE": 0.0027501736886738275,
       "Test_MAPE": 0.052602446122942716,
-      "Train_Time(s)": 0.114
+      "Train_Time(s)": 0.109
     },
     {
       "Model": "SVR",
@@ -102,7 +102,7 @@
       "Test_MAE": 71900.06649153437,
       "Train_MAPE": 0.11745835082129036,
       "Test_MAPE": 0.11454779876517593,
-      "Train_Time(s)": 0.079
+      "Train_Time(s)": 0.066
     }
   ],
   "features_used": [
