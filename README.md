@@ -2,6 +2,8 @@
 
 End-to-end MLOps project that trains a Gradient Boosting model to predict house prices and serves predictions through a FastAPI backend with a Vue.js frontend. Experiment tracking via **MLflow** in Docker. Split into two independent stages: `1-experimentation` (research) and `2-production` (serving).
 
+For a stage-by-stage walkthrough of the notebook pipeline with example data, see [docs/etapas-notebooks.md](docs/etapas-notebooks.md).
+
 ## Project Structure
 
 ```
