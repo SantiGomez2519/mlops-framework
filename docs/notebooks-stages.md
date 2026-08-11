@@ -12,7 +12,7 @@ data/raw/house_data.csv
    └─▶ 1.6 Evaluation       (reads featured + models/, writes nothing)
 ```
 
-All paths in this document are relative to `1-experimentation/`, which must be the notebook working directory.
+All paths in this document refer to artifacts under `1-experimentation/` (e.g. `data/`, `models/`). The notebooks live in `1-experimentation/notebooks/`; when running them, the notebook working directory must be `1-experimentation/notebooks/` so their `../data/...` / `../models/...` paths resolve.
 
 ## Running Example
 

@@ -9,12 +9,13 @@ For a stage-by-stage walkthrough of the notebook pipeline with example data, see
 ```
 mlops-framework/
 ├── 1-experimentation/                # Stage 1: research (self-contained)
-│   ├── 1_1_raw_data_profiling.ipynb
-│   ├── 1_2_raw_data_preprocessing.ipynb
-│   ├── 1_3_preprocessed_data_exploratory_data_analysis.ipynb
-│   ├── 1_4_preprocessed_data_feature_engineer.ipynb
-│   ├── 1_5_featured_data_model_training.ipynb   # Trains models + logs to MLflow
-│   ├── 1_6_featured_data_model_evaluation.ipynb
+│   ├── notebooks/
+│   │   ├── 1_1_raw_data_profiling.ipynb
+│   │   ├── 1_2_raw_data_preprocessing.ipynb
+│   │   ├── 1_3_preprocessed_data_exploratory_data_analysis.ipynb
+│   │   ├── 1_4_preprocessed_data_feature_engineer.ipynb
+│   │   ├── 1_5_featured_data_model_training.ipynb   # Trains models + logs to MLflow
+│   │   └── 1_6_featured_data_model_evaluation.ipynb
 │   ├── data/                         # raw/ → processed/ → featured/
 │   ├── models/                       # best_model.joblib + experiment_results.json
 │   ├── docker-compose.yml            # MLflow Tracking Server
@@ -105,7 +106,7 @@ cd 1-experimentation
 pip install -r requirements.txt
 ```
 
-2. Run notebooks in order (1_1 through 1_6) in Jupyter or VS Code. The working directory must be `1-experimentation/` (all paths are relative to it).
+2. Run notebooks in order (1_1 through 1_6) in Jupyter or VS Code. The working directory must be `1-experimentation/notebooks/` (all paths are relative to it).
 3. Ensure the MLflow server is running (`docker compose up -d`) before running `1_5`.
 
 ## Deploying to Production
