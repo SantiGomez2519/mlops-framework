@@ -1,0 +1,120 @@
+{
+  "best_model": "Gradient Boosting",
+  "best_params": {
+    "learning_rate": 0.1,
+    "max_depth": 5,
+    "min_samples_split": 5,
+    "n_estimators": 300
+  },
+  "best_cv_r2": 0.998212772683518,
+  "final_metrics": {
+    "Model": "Gradient Boosting",
+    "Train_R2": 0.9999415353167125,
+    "Train_RMSE": 2500.822639346328,
+    "Train_MAE": 806.8358615241691,
+    "Train_MAPE": 0.0016115730161049117,
+    "CV_R2": 0.998212772683518,
+    "CV_R2_std": 0.0006724691040032449
+  },
+  "all_model_results": [
+    {
+      "Model": "Linear Regression",
+      "Train_R2": 0.9973810187636752,
+      "Train_RMSE": 16737.95072626156,
+      "Train_MAE": 11245.282216560072,
+      "Train_MAPE": 0.016335082719389833,
+      "CV_R2": 0.9962568578694284,
+      "CV_R2_std": 0.001165156343249189,
+      "Train_Time(s)": 0.066
+    },
+    {
+      "Model": "Ridge",
+      "Train_R2": 0.9878923063218195,
+      "Train_RMSE": 35988.75343663105,
+      "Train_MAE": 23174.277401826475,
+      "Train_MAPE": 0.03022803595903625,
+      "CV_R2": 0.9875806014664612,
+      "CV_R2_std": 0.004720958437682306,
+      "Train_Time(s)": 0.068
+    },
+    {
+      "Model": "Lasso",
+      "Train_R2": 0.958937723288105,
+      "Train_RMSE": 66276.2006694453,
+      "Train_MAE": 43897.520929620034,
+      "Train_MAPE": 0.062224099410122705,
+      "CV_R2": 0.9622502097075045,
+      "CV_R2_std": 0.01621792798061891,
+      "Train_Time(s)": 0.067
+    },
+    {
+      "Model": "ElasticNet",
+      "Train_R2": 0.9729098070075919,
+      "Train_RMSE": 53832.20151846257,
+      "Train_MAE": 34790.28145818374,
+      "Train_MAPE": 0.04699274428342787,
+      "CV_R2": 0.9756035552111237,
+      "CV_R2_std": 0.01293076406197448,
+      "Train_Time(s)": 0.065
+    },
+    {
+      "Model": "Random Forest",
+      "Train_R2": 0.9994835923816007,
+      "Train_RMSE": 7432.457112780156,
+      "Train_MAE": 5230.898245764227,
+      "Train_MAPE": 0.008972424650567154,
+      "CV_R2": 0.9965891686805387,
+      "CV_R2_std": 0.0023223051377189463,
+      "Train_Time(s)": 0.316
+    },
+    {
+      "Model": "Gradient Boosting",
+      "Train_R2": 0.9999292297147154,
+      "Train_RMSE": 2751.4496173584503,
+      "Train_MAE": 1529.0158028548672,
+      "Train_MAPE": 0.002880505343093884,
+      "CV_R2": 0.9966718117189213,
+      "CV_R2_std": 0.0021723092664981754,
+      "Train_Time(s)": 0.11
+    },
+    {
+      "Model": "SVR",
+      "Train_R2": 0.8450698029992436,
+      "Train_RMSE": 128737.22045688784,
+      "Train_MAE": 84845.99147904484,
+      "Train_MAPE": 0.11764384672107145,
+      "CV_R2": 0.8831001780434867,
+      "CV_R2_std": 0.02932695923895943,
+      "Train_Time(s)": 0.066
+    }
+  ],
+  "features_used": [
+    "sqft",
+    "bedrooms",
+    "bathrooms",
+    "year_built",
+    "house_age",
+    "loc_Downtown",
+    "loc_Mountain",
+    "loc_Rural",
+    "loc_Suburb",
+    "loc_Urban",
+    "loc_Waterfront",
+    "condition_encoded",
+    "total_rooms",
+    "bath_bed_ratio",
+    "is_luxury",
+    "is_new",
+    "sqft_per_bedroom"
+  ],
+  "target": "log_price (log-transformed)",
+  "train_samples": 67,
+  "note": "Held-out test metrics are computed in notebook 1_6 and appended as test_metrics.",
+  "test_metrics": {
+    "test_r2": 0.9044080509043689,
+    "test_rmse": 72709.61947400492,
+    "test_mae": 44664.520378070876,
+    "test_mape": 0.0666250911181521,
+    "test_samples": 17
+  }
+}

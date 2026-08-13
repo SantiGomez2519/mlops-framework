@@ -3,20 +3,22 @@
 The house-price pipeline in `1-experimentation/` is a chain of 6 notebooks. Each stage reads the file the previous stage produced, and writes the next one. Nothing is transformed in place: the table you see at stage *n+1* is the table from stage *n* plus whatever that stage added, changed, or removed.
 
 ```
-data/raw/house_data.csv
-   └─▶ 1.1 Profiling        (reads raw, writes nothing)
-   └─▶ 1.2 Preprocessing    (reads raw → writes data/processed/)
-   └─▶ 1.3 EDA              (reads processed, writes nothing)
-   └─▶ 1.4 Feature Eng.     (reads processed → writes data/featured/)
-   └─▶ 1.5 Model Training   (reads featured → writes models/)
-   └─▶ 1.6 Evaluation       (reads featured + models/, writes nothing)
+data/data_raw.csv
+   └─▶ 1.1 Profiling + Split (reads data_raw.csv → writes data_raw_train.csv / data_raw_test.csv)
+   └─▶ 1.2 Preprocessing     (reads data_raw_train.csv → writes data_preprocessed_train.csv)
+   └─▶ 1.3 EDA               (reads data_preprocessed_train.csv, writes nothing)
+   └─▶ 1.4 Feature Eng.      (reads data_preprocessed_train.csv → writes data_feature_train.csv + artifacts/preprocessing/)
+   └─▶ 1.5 Model Training    (reads data_feature_train.csv → writes artifacts/models/ + artifacts/experiments/; CV-based selection)
+   └─▶ 1.6 Evaluation        (reads data_raw_test.csv + artifacts/preprocessing/ + artifacts/models/ → held-out metrics)
 ```
 
-All paths in this document refer to artifacts under `1-experimentation/` (e.g. `data/`, `models/`). The notebooks live in `1-experimentation/notebooks/`; when running them, the notebook working directory must be `1-experimentation/notebooks/` so their `../data/...` / `../models/...` paths resolve.
+Datasets live flat in `data/` (no subfolders). Everything that describes the trained model lives under `artifacts/`: `artifacts/preprocessing/data_features.json` (feature order) + `data_scaler.json` (scaler mean/std) are the **configuration** that 1.6 re-applies to the held-out test split, `artifacts/models/` holds the trained model, and `artifacts/experiments/` holds the run report.
+
+All paths in this document refer to artifacts under `1-experimentation/` (e.g. `data/`, `artifacts/`). The notebooks live in `1-experimentation/notebooks/`; when running them, the notebook working directory must be `1-experimentation/notebooks/` so their `../data/...` / `../artifacts/...` paths resolve.
 
 ## Running Example
 
-To make the changes concrete, every stage below shows the **same two houses**, taken from rows 0 and 1 of `data/raw/house_data.csv`:
+To make the changes concrete, every stage below shows the **same two houses**, taken from rows 0 and 1 of `data/data_raw.csv`:
 
 | House | price | sqft | bedrooms | bathrooms | location | year_built | condition |
 |-------|------:|-----:|---------:|----------:|----------|-----------:|-----------|
@@ -30,12 +32,13 @@ To make the changes concrete, every stage below shows the **same two houses**, t
 **Objective:** understand the raw data before touching it.
 
 **What it does:**
-- Loads `data/raw/house_data.csv`
+- Loads `data/data_raw.csv`
 - Prints shape, data types, and memory usage
 - Checks for missing values (count + percentage)
 - Lists unique values per column and the categorical distributions (`location`, `condition`)
+- **Splits the raw table** 80/20 (`random_state=42`) → 67 train / 17 test rows, saved as `data/data_raw_train.csv` and `data/data_raw_test.csv`. The test split is kept **raw** — no later stage touches it until 1.6.
 
-**Output:** none — this stage only reports. It is where the **raw table** is first seen.
+**Output:** `data/data_raw_train.csv` (67 rows), `data/data_raw_test.csv` (17 rows).
 
 **Example (the table is unchanged):**
 
@@ -58,7 +61,9 @@ To make the changes concrete, every stage below shows the **same two houses**, t
 5. Creates the new feature **`house_age = 2026 − year_built`** (`CURRENT_YEAR` is hardcoded to 2026)
 6. Runs validation asserts (no non-positive prices/sqft, no future `year_built`, valid `location`/`condition` values)
 
-**Output:** `data/processed/house_data_preprocessed.csv` (85 rows, 8 columns).
+**Note:** only the **train split** (`data_raw_train.csv`) is preprocessed here. The held-out test split stays raw on disk and gets the exact same treatment in 1.6 as part of the config process.
+
+**Output:** `data/data_preprocessed_train.csv` (67 rows, 8 columns).
 
 **Example — the same two rows, now with `house_age` added** (neither of these rows was imputed or capped, so their values are unchanged):
 
@@ -74,7 +79,7 @@ To make the changes concrete, every stage below shows the **same two houses**, t
 **Objective:** explore patterns before building features.
 
 **What it does:**
-- Loads `data/processed/house_data_preprocessed.csv`
+- Loads `data/data_preprocessed_train.csv`
 - Analyzes the target `price` (distribution, skewness 1.013) and motivates the **log transform** used later
 - Plots distributions of `sqft`, `bedrooms`, `bathrooms`, `house_age`
 - Analyzes categorical features (`location`, `condition`) and price by group
@@ -101,9 +106,11 @@ To make the changes concrete, every stage below shows the **same two houses**, t
    - `log_price = log1p(price)` — the **actual training target**
 4. **Standard-scales** 7 numerics with `StandardScaler`: `sqft`, `bedrooms`, `bathrooms`, `house_age`, `total_rooms`, `bath_bed_ratio`, `sqft_per_bedroom`. `year_built` stays raw.
 5. Defines `FEATURE_COLS` (17 features) and saves:
-   - `data/featured/house_data_features.csv`
-   - `data/featured/feature_list.json`
-   - `data/featured/scaler_params.json` (mean/std of the scaler — required by the backend later)
+   - `data/data_feature_train.csv`
+   - `artifacts/preprocessing/data_features.json` (feature order — part of the config process)
+   - `artifacts/preprocessing/data_scaler.json` (mean/std of the scaler — required by 1.6 and, in spirit, by the backend later)
+
+The scaler is fitted on the **train split only**; 1.6 will re-use its mean/std on the test split without refitting.
 
 **Example — the two rows after encoding, feature creation, and scaling** (scaled values are `(x − mean) / std`; this is the table the model will see):
 
@@ -133,24 +140,24 @@ To make the changes concrete, every stage below shows the **same two houses**, t
 **Objective:** train and select the best regression model.
 
 **What it does:**
-1. Loads `data/featured/house_data_features.csv` + `feature_list.json`; `X` = 17 features, `y` = `log_price`
-2. **Train/test split** — 80/20 with `random_state=42` → 67 train / 17 test rows
+1. Loads `data/data_feature_train.csv` + `artifacts/preprocessing/data_features.json`; `X` = 17 features, `y` = `log_price`
+2. **No internal train/test split** — the model trains on all 67 train rows; model selection uses **5-fold cross-validation** (the split already happened in 1.1, and the held-out test stays raw for 1.6)
 3. Configures MLflow (`http://localhost:5555`, experiment `house_price_prediction` — **the Docker MLflow server must be running**)
-4. Defines `evaluate_model`, which **inverts the log transform with `np.expm1`** so all metrics are in dollars
+4. Defines `evaluate_model`, which **inverts the log transform with `np.expm1`** so all metrics are in dollars, and reports train metrics + 5-fold CV R² per model
 5. Trains and logs 7 models (Linear Regression, Ridge, Lasso, ElasticNet, Random Forest, Gradient Boosting, SVR) as individual MLflow runs
-6. 5-fold cross-validation on the top 3, then **GridSearchCV** on the best (Gradient Boosting → `learning_rate=0.1, max_depth=7, min_samples_split=2, n_estimators=200`)
+6. Ranks by CV R², cross-validates the top 3, then **GridSearchCV** on the best (Gradient Boosting → `learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=300`)
 7. Logs the tuned best model to MLflow and saves:
-   - `models/best_model.joblib`
-   - `models/experiment_results.json`
+   - `artifacts/models/best_model.joblib`
+   - `artifacts/experiments/experiment_results.json` (train + CV metrics; held-out test metrics are appended by 1.6)
 
-**Example — where the two houses landed in the split** (verified with `random_state=42`):
+**Example — where the two houses landed in the split** (made by 1.1 with `random_state=42`):
 
 | House | Split | Note |
 |-------|-------|------|
-| **A** | **TEST** | used for final evaluation |
+| **A** | **TEST** | used for final evaluation in 1.6 |
 | **B** | **TRAIN** | the model saw it during fitting |
 
-> The split is random; these two specific rows are shown only because they are the running example. The model never changes the table here — it only reads it.
+> The split is random; these two specific rows are shown only because they are the running example. 1.5 never changes the table here — it only reads it.
 
 ---
 
@@ -158,27 +165,28 @@ To make the changes concrete, every stage below shows the **same two houses**, t
 
 **Objective:** judge how well the tuned model generalizes.
 
-**What it does:**
-1. Reloads `data/featured/house_data_features.csv`, `feature_list.json`, `models/best_model.joblib`, `models/experiment_results.json` and re-does the same split
-2. Predicts on the test set and **inverts the log** (`np.expm1`) → final metrics on the 17 test houses (test R² = 0.949, RMSE ≈ $62,093, MAE ≈ $38,911, MAPE ≈ 5.81%)
-3. Predicted-vs-actual scatter, residual analysis, residual histogram
-4. Feature importance (Gradient Boosting exposes `feature_importances_`)
-5. Prints an experiment summary
+**What it does (the config process):**
+1. Loads the **raw** held-out test split `data/data_raw_test.csv` plus the saved configuration `artifacts/preprocessing/data_features.json`, `artifacts/preprocessing/data_scaler.json`, and `artifacts/models/best_model.joblib` + `artifacts/experiments/experiment_results.json`
+2. Re-applies the exact training transforms to the test split in its own cells: preprocessing from 1.2 (dtypes, IQR capping, `house_age = 2026 − year_built`), encoding + derived features from 1.4 (6 location one-hots, `condition_encoded`, the 6 new features + `log_price`), then scales the 7 numerics with the **train-fitted** scaler (mean/std from `data_scaler.json` — no refit) and selects columns in `FEATURE_COLS` order
+3. Predicts on the test set and **inverts the log** (`np.expm1`) → final held-out metrics on the 17 test houses (test R² = 0.904, RMSE ≈ $72,710, MAE ≈ $44,665, MAPE ≈ 6.66%)
+4. Predicted-vs-actual scatter, residual analysis, residual histogram
+5. Feature importance (Gradient Boosting exposes `feature_importances_`)
+6. Prints an experiment summary and appends `test_metrics` to `artifacts/experiments/experiment_results.json`
 
 **Example — predicted vs actual price** (real predictions from `best_model.joblib`):
 
 | House | Split | Actual price | Predicted price | Residual (actual − predicted) |
 |-------|-------|-------------:|----------------:|------------------------------:|
-| **A** | TEST | $495,000 | $405,331 | +$89,669 |
-| **B** | TRAIN | $752,000 | $752,000 | $0 |
+| **A** | TEST | $495,000 | $377,835 | +$117,165 |
+| **B** | TRAIN | $752,000 | $752,001 | −$1 |
 
-House **A** is a genuine test prediction (about $90K off — typical error at this dataset size). House **B** is a training row shown for reference: the model reproduces it exactly, which is expected for data it has already seen, not a sign of generalization.
+House **A** is a genuine held-out test prediction (about $117K off — typical error at this dataset size). House **B** is a training row shown for reference: the model reproduces it exactly, which is expected for data it has already seen, not a sign of generalization.
 
 ---
 
 ## Summary — How the Two Rows Evolve
 
-| | Stage 1.1 / 1.2 (raw → preprocessed) | Stage 1.4 (featured) | Stage 1.5 (split) | Stage 1.6 (evaluated) |
+| | Stage 1.1 / 1.2 (raw → preprocessed) | Stage 1.4 (featured) | Stage 1.1 (split) | Stage 1.6 (evaluated) |
 |---|---|---|---|---|
-| **House A** | `Suburb · 1956 · Good · house_age=70` | `loc_Suburb=1 · cond=2 · is_luxury=0 · is_new=0 · log_price=13.112` | TEST | predicted **$405,331** vs actual $495,000 |
-| **House B** | `Downtown · 1998 · Excellent · house_age=28` | `loc_Downtown=1 · cond=3 · is_luxury=1 · is_new=0 · log_price=13.530` | TRAIN | predicted **$752,000** vs actual $752,000 |
+| **House A** | `Suburb · 1956 · Good · house_age=70` | `loc_Suburb=1 · cond=2 · is_luxury=0 · is_new=0 · log_price=13.112` | TEST | predicted **$377,835** vs actual $495,000 |
+| **House B** | `Downtown · 1998 · Excellent · house_age=28` | `loc_Downtown=1 · cond=3 · is_luxury=1 · is_new=0 · log_price=13.530` | TRAIN | predicted **$752,001** vs actual $752,000 |

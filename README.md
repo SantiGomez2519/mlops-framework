@@ -10,14 +10,18 @@ For a stage-by-stage walkthrough of the notebook pipeline with example data, see
 mlops-framework/
 ├── 1-experimentation/                # Stage 1: research (self-contained)
 │   ├── notebooks/
-│   │   ├── 1_1_raw_data_profiling.ipynb
+│   │   ├── 1_1_raw_data_profiling_and_split.ipynb
 │   │   ├── 1_2_raw_data_preprocessing.ipynb
 │   │   ├── 1_3_preprocessed_data_exploratory_data_analysis.ipynb
 │   │   ├── 1_4_preprocessed_data_feature_engineer.ipynb
 │   │   ├── 1_5_featured_data_model_training.ipynb   # Trains models + logs to MLflow
 │   │   └── 1_6_featured_data_model_evaluation.ipynb
-│   ├── data/                         # raw/ → processed/ → featured/
-│   ├── models/                       # best_model.joblib + experiment_results.json
+│   ├── data/                         # flat datasets: data_raw{,,_train,_test}.csv,
+│   │                                 #   data_preprocessed_train.csv, data_feature_train.csv
+│   ├── artifacts/                    # everything about the trained model
+│   │   ├── models/                   #   best_model.joblib
+│   │   ├── preprocessing/            #   data_features.json + data_scaler.json (config process)
+│   │   └── experiments/              #   experiment_results.json
 │   ├── docker-compose.yml            # MLflow Tracking Server
 │   └── requirements.txt
 └── 2-production/                     # Stage 2: serving (self-contained, no notebooks)
@@ -52,7 +56,7 @@ mlops-framework/
 
 ## Dataset
 
-`1-experimentation/data/raw/house_data.csv` — 85 houses with 7 columns. Production owns its own copy as its first batch at `2-production/backend/data/raw/house_data.csv`.
+`1-experimentation/data/data_raw.csv` — 84 houses with 7 columns. Production owns its own copy as its first batch at `2-production/backend/data/raw/house_data.csv`.
 
 | Column | Type | Description |
 |--------|------|-------------|
